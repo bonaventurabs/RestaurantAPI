@@ -1,0 +1,29 @@
+{
+	"menu": [
+		{
+			"id": 1,
+			"name": "nasi putih",
+			"price": 5000
+		},
+		{
+			"id": 2,
+			"name": "nasi rebus",
+			"price": 10000
+		},
+		{
+			"id": 3,
+			"name": "bebek gulai",
+			"price": 20000
+		},
+		{
+			"id": 4,
+			"name": "nasi campur",
+			"price": 18000
+		},
+		{
+			"id": 5,
+			"name": "bistik",
+			"price": 50000
+		}
+	]
+}
