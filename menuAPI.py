@@ -1,6 +1,5 @@
 import json
 from datetime import datetime, timedelta
-from os import access
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, status, Depends
@@ -9,7 +8,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
-from schema import Token, User, Item
+from schema import Token, User, Item, TokenData
 
 SECRET_KEY = "7fb37f84964f9eabe3898d94b5a9a0fb3131ced462886a8ce43dab60ec02d58f"
 ALGORITHM = "HS256"
@@ -25,21 +24,21 @@ with open('user.json', 'r') as read_file:
 
 app = FastAPI() 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def get_user(user_db, username: str):
     for user in user_db:
-        if user.username == username:
-            return user
+        if user["username"] == username:
+            return User(**user)
 
 def authenticate_user(user_db, username: str, password: str):
-    user = get_user(users, username)
+    user = get_user(user_db, username)
     if not user:
         return False
     else:
         if user.password!=password:
             return False
-    return True
+    return user
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -75,7 +74,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 async def root():
     return {"Restaurant": "Indonesian Food"}
 
-@app.post("/login", response_model=Token)
+@app.post("/token", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(users, form_data.username, form_data.password)
     if not user:
@@ -88,7 +87,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-    return {"accress_token": access_token, "token_type": "bearer"}
+    return Token(**{"access_token": access_token, "token_type": "bearer"})
 
 # Read All Item Menu
 @app.get('/menu', tags=['menu']) 
@@ -128,17 +127,13 @@ async def update_menu(item: Item):
 
 # Add New Item Menu
 @app.post('/menu', tags=['menu'])
-async def add_menu(item: Item):
+async def add_menu(item: Item, current_user: User = Depends(get_current_user)):
     for menu_item in data['menu']:
         if menu_item['id'] == item.id:
             raise HTTPException(
                 status_code=405, detail=f"Method not allowed"
             )
-    data['menu'].append({
-        "id": item.id,
-        "name": f"{item.name}",
-        "price": item.price
-    })
+    data['menu'].append(item.dict())
     # Write JSON Object on JSON file
     json_object = json.dumps(data, indent='\t')
     with open('menu.json', 'w') as rewrite_file:
