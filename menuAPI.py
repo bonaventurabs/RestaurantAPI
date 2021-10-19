@@ -4,7 +4,6 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, oauth2
-from jose import JWTError, jwt
 
 from schema import Token, User, Item, TokenData
 from auth import UserHandler
@@ -22,6 +21,7 @@ user_handler = UserHandler()
 async def root():
     return {"Restaurant": "Indonesian Food"}
 
+# Request token 
 @app.post("/token", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = user_handler.authenticate_user(form_data.username, form_data.password)
@@ -50,12 +50,13 @@ async def read_menu(item_id: int):
             return menu_item
 
     raise HTTPException(
-        status_code=404, detail=f"Item not found"
+        status_code=status.HTTP_404_NOT_FOUND, 
+        detail=f"Item not found"
     )
 
 # Update Specific Item Menu
 @app.put('/menu', tags=['menu'])
-async def update_menu(item: Item):
+async def update_menu(item: Item, current_user: User = Depends(user_handler.get_current_user)):
     for menu_item in data['menu']:
         if menu_item['id'] == item.id:
             if item.name != None:
@@ -70,7 +71,8 @@ async def update_menu(item: Item):
             return menu_item
 
     raise HTTPException(
-        status_code=404, detail=f"Item not found"
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Item not found"
     )
 
 # Add New Item Menu
@@ -79,7 +81,8 @@ async def add_menu(item: Item, current_user: User = Depends(user_handler.get_cur
     for menu_item in data['menu']:
         if menu_item['id'] == item.id:
             raise HTTPException(
-                status_code=405, detail=f"Method not allowed"
+                status_code=status.HTTP_409_CONFLICT, 
+                detail=f"Conflict"
             )
     data['menu'].append(item.dict())
     # Write JSON Object on JSON file
@@ -90,7 +93,7 @@ async def add_menu(item: Item, current_user: User = Depends(user_handler.get_cur
 
 #Delete Spesific Item Menu
 @app.delete('/menu/{item_id}', tags=['menu'])
-async def delete_menu(item_id: int):
+async def delete_menu(item_id: int, current_user: User = Depends(user_handler.get_current_user)):
     for menu_item in data['menu']:
         if menu_item['id'] == item_id:
             data['menu'].remove(menu_item)
@@ -100,5 +103,6 @@ async def delete_menu(item_id: int):
                 rewrite_file.write(json_object)
             return{"detail": "Item deleted successfully"}
     raise HTTPException(
-        status_code=404, detail=f'Item not found'
+        status_code=status.HTTP_404_NOT_FOUND, 
+        detail=f'Item not found'
     )
