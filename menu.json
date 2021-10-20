@@ -3,7 +3,7 @@
 		{
 			"id": 1,
 			"name": "nasi putih",
-			"price": 5000
+			"price": 6000
 		},
 		{
 			"id": 2,
@@ -26,9 +26,9 @@
 			"price": 50000
 		},
 		{
-			"id": 10,
-			"name": "nasi padang",
-			"price": 50000
+			"id": 9,
+			"name": "gudeg",
+			"price": 60000
 		}
 	]
 }
