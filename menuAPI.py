@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, status, Depends
+from fastapi import FastAPI, HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, oauth2
 
 from schema import Token, User, Item, TokenData
@@ -18,8 +18,14 @@ user_handler = UserHandler()
 
 # Read Base Path
 @app.get('/')
-async def root():
-    return {"Restaurant": "Indonesian Food"}
+async def root(request: Request):
+    url_list = [
+        {"path": route.path, "name": route.name} for route in request.app.routes
+    ]
+    return {
+        "API": "Food Menu API",
+        "Path List": url_list
+    }
 
 # Request token 
 @app.post("/token", response_model=Token)

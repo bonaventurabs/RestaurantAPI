@@ -24,6 +24,11 @@
 			"id": 5,
 			"name": "bistik",
 			"price": 50000
+		},
+		{
+			"id": 10,
+			"name": "nasi padang",
+			"price": 50000
 		}
 	]
 }
