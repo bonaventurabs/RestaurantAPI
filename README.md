@@ -1,7 +1,7 @@
 # RestaurantAPI
 
 ## FastAPI JWT Authorization
-Get token:
+Credential:
 ```
 username: asdf
 password: asdf
