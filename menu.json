@@ -24,11 +24,6 @@
 			"id": 5,
 			"name": "bistik",
 			"price": 50000
-		},
-		{
-			"id": 9,
-			"name": "gudeg",
-			"price": 60000
 		}
 	]
 }
